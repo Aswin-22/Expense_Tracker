@@ -1,3 +1,16 @@
-#Dependencies
-client/node_modules/
-server/node_modules/
+# Dependencies
+**/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.production.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build outputs
+build/
+dist/
