@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from "../axiosInstance";
 
 export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://localhost:3000/user/auth", {
+      const response = await axiosInstance.get("/user/auth", {
         withCredentials: true,
       });
       return response.data;
@@ -19,8 +19,8 @@ export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/user/login",
+      const response = await axiosInstance.post(
+        "/user/login",
         {
           email,
           password,
@@ -31,7 +31,33 @@ export const login = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-        return rejectWithValue(error.response?.data || { message: "Login failed" });
+      return rejectWithValue(
+        error.response?.data || { message: "Login failed" }
+      );
+    }
+  }
+);
+
+export const signup = createAsyncThunk(
+  "auth/signup",
+  async ({ name, email, password }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        "/user/signup",
+        {
+          name,
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data.message;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Signup failed. Please try again."
+      );
     }
   }
 );
@@ -79,6 +105,17 @@ const authSlice = createSlice({
         state.error = action.payload;
         state.user = null;
         state.isAuthenticated = false;
+        state.loading = false;
+      })
+      .addCase(signup.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(signup.fulfilled, (state) => {
+        state.error = null;
+        state.loading = false;
+      })
+      .addCase(signup.rejected, (state, action) => {
+        state.error = action.payload;
         state.loading = false;
       });
   },

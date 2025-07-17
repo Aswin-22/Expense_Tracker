@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useDispatch } from "react-redux";
+import { signup } from "../redux/authSlice";
 
 function Signup() {
   const [email, setEmail] = useState("");
@@ -8,25 +9,16 @@ function Signup() {
   const [name, setName] = useState("");
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        "http://localhost:3000/user/signup",
-        {
-          name,
-          email,
-          password,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      setMsg(response.data.message);
+      await dispatch(signup({ name, email, password })).unwrap();
       navigate("/user/login");
-    } catch (err) {
-      setMsg(err.response?.data?.message || "Signup failed. Please try again.");
+    } catch (error) {
+      setMsg(error.message || "Signup failed. Please try again.");
+      console.error("Signup error:", error);
     }
   };
 
