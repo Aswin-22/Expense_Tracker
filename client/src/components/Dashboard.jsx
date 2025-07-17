@@ -15,6 +15,12 @@ const Dashboard = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!type || (type !== "INCOME" && type !== "EXPENSE")) {
+      alert("Please select a valid transaction type.");
+      return;
+    }
+
     try {
       const transactionData = {
         name,
@@ -63,6 +69,9 @@ const Dashboard = () => {
           value={type}
           onChange={(e) => setType(e.target.value)}
         >
+          <option disabled value="">
+            Select Type
+          </option>
           <option value="INCOME">INCOME</option>
           <option value="EXPENSE">EXPENSE</option>
         </select>
