@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -54,7 +53,7 @@ function Nav() {
               </li>
               <li>
                 <Link to="/income" className="nav-items">
-                Income
+                  Income
                 </Link>
               </li>
               <li>
