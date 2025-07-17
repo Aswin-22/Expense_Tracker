@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from "../axiosInstance";
 
 export const fetchAndSetTransactions = createAsyncThunk(
   "transactions/fetchAndSetTransactions",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://localhost:3000/transactions", {
+      const response = await axiosInstance.get("/transactions", {
         withCredentials: true,
       });
       return response.data;
@@ -19,8 +19,8 @@ export const addTransactions = createAsyncThunk(
   "transactions/addTransactions",
   async (transactionData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/transactions",
+      const response = await axiosInstance.post(
+        "/transactions",
         transactionData,
         { withCredentials: true }
       );
