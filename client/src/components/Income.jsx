@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addTransactions } from "../redux/transactionSlice";
+import { addTransactions, deleteTransaction } from "../redux/transactionSlice";
 
 const Income = () => {
   const dispatch = useDispatch();
@@ -11,6 +11,14 @@ const Income = () => {
   const { incomeTransactions, status, error } = useSelector(
     (state) => state.transactions
   );
+
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteTransaction(id)).unwrap();
+    } catch (err) {
+      console.error("Failed to delete transaction:", err);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,6 +82,7 @@ const Income = () => {
               <li key={transaction._id}>
                 <strong>{transaction.name}</strong> - ₹{transaction.amount} (
                 {transaction.type})
+                <button onClick={() => handleDelete(transaction._id)}>Delete transaction</button>
               </li>
             ))}
           </ul>

@@ -31,6 +31,20 @@ export const addTransactions = createAsyncThunk(
   }
 );
 
+export const deleteTransaction = createAsyncThunk(
+  "transactions/deleteTransaction",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.delete(`/transactions/${id}`, {
+        withCredentials: true,
+      });
+      return {_id: id};
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 const transactionSlice = createSlice({
   name: "transactions",
   initialState: {
@@ -73,6 +87,26 @@ const transactionSlice = createSlice({
         }
       })
       .addCase(addTransactions.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(deleteTransaction.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteTransaction.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        const deletedId = action.payload._id;
+        state.allTransactions = state.allTransactions.filter(
+          (transaction) => transaction._id !== deletedId
+        );
+        state.incomeTransactions = state.incomeTransactions.filter(
+          (transaction) => transaction._id !== deletedId
+        );
+        state.expenseTransactions = state.expenseTransactions.filter(
+          (transaction) => transaction._id !== deletedId
+        );
+      })
+      .addCase(deleteTransaction.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       });

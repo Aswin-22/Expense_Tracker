@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addTransactions } from "../redux/transactionSlice";
+import { addTransactions, deleteTransaction } from "../redux/transactionSlice";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -38,6 +38,14 @@ const Dashboard = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteTransaction(id)).unwrap();
+    } catch (err) {
+      console.error("Failed to delete transaction:", err);
+    }
+  }
+
   if (status === "loading") return <p>Loading transactions...</p>;
   if (status === "failed") return <p>Error: {error}</p>;
 
@@ -53,10 +61,10 @@ const Dashboard = () => {
         />
         <label htmlFor="amount">Amount</label>
         <input
-          type="text"
+          type="number"
           name="amount"
           value={amount}
-          onChange={(e) => setAmount(Number(e.target.value))}
+          onChange={(e) => setAmount(e.target.value)}
         />
         <label htmlFor="date"></label>
         <input
@@ -94,6 +102,7 @@ const Dashboard = () => {
               <li key={transaction._id}>
                 <strong>{transaction.name}</strong> - ₹{transaction.amount} (
                 {transaction.type})
+                <button onClick={() => handleDelete(transaction._id)}>Delete Transaction</button>
               </li>
             ))}
           </ul>

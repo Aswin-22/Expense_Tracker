@@ -44,7 +44,7 @@ async function deleteTransaction(req, res, next) {
       err.statusCode = 404;
       throw err;
     }
-    res.status(200).json({ message: "Transaction deleted successfully" });
+    res.status(200).json({ message: "Transaction deleted successfully", _id: id });
   } catch (error) {
     next(error);
   }
