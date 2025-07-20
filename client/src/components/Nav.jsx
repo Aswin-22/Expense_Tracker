@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../redux/authSlice";
-import axios from "axios";
+
 
 function Nav() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -11,11 +11,6 @@ function Nav() {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "http://localhost:3000/user/logout",
-        {},
-        { withCredentials: true }
-      );
       dispatch(logout());
       navigate("/user/login");
     } catch (error) {
