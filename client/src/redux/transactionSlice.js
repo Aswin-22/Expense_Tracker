@@ -31,6 +31,27 @@ export const addTransactions = createAsyncThunk(
   }
 );
 
+const calculateTotals = (transactions) => {
+  let totalIncome = 0;
+  let totalExpense = 0;
+
+  transactions.forEach((tx) => {
+    let amount = Number(tx.amount);
+
+    if (tx.type === "INCOME") {
+      totalIncome += amount;
+    } else {
+      totalExpense += amount;
+    }
+  });
+
+  return {
+    totalExpense,
+    totalIncome,
+    balance: totalIncome - totalExpense,
+  };
+};
+
 export const deleteTransaction = createAsyncThunk(
   "transactions/deleteTransaction",
   async (id, { rejectWithValue }) => {
@@ -38,7 +59,7 @@ export const deleteTransaction = createAsyncThunk(
       const response = await axiosInstance.delete(`/transactions/${id}`, {
         withCredentials: true,
       });
-      return {_id: id};
+      return { _id: id };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -51,6 +72,9 @@ const transactionSlice = createSlice({
     allTransactions: [],
     incomeTransactions: [],
     expenseTransactions: [],
+    totalIncome: 0,
+    totalExpense: 0,
+    balance: 0,
     status: "idle",
     error: null,
   },
@@ -69,6 +93,13 @@ const transactionSlice = createSlice({
         state.expenseTransactions = action.payload.filter(
           (transaction) => transaction.type === "EXPENSE"
         );
+
+        const { totalExpense, totalIncome, balance } = calculateTotals(
+          action.payload
+        );
+        state.totalExpense = totalExpense;
+        state.totalIncome = totalIncome;
+        state.balance = balance;
       })
       .addCase(fetchAndSetTransactions.rejected, (state, action) => {
         state.status = "failed";

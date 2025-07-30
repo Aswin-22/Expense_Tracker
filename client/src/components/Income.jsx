@@ -4,9 +4,6 @@ import { addTransactions, deleteTransaction } from "../redux/transactionSlice";
 
 const Income = () => {
   const dispatch = useDispatch();
-  const [name, setName] = useState("");
-  const [amount, setAmount] = useState("");
-  const [date, setDate] = useState("");
 
   const { incomeTransactions, status, error } = useSelector(
     (state) => state.transactions
@@ -22,17 +19,11 @@ const Income = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.target);
+    formData.append("type", "INCOME")
     try {
-      const transactionData = {
-        name,
-        amount: Number(amount),
-        date: date || new Date(),
-        type: "INCOME",
-      };
-      await dispatch(addTransactions(transactionData)).unwrap();
-      setName("");
-      setAmount("");
-      setDate("");
+      await dispatch(addTransactions(formData)).unwrap();
+      e.target.reset();
     } catch (err) {
       console.error("Failed to add transaction:", err);
     }
@@ -45,21 +36,16 @@ const Income = () => {
         <input
           type="text"
           name="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
         />
         <label htmlFor="amount">Amount</label>
         <input
           type="text"
           name="amount"
-          value={amount}
-          onChange={(e) => setAmount(Number(e.target.value))}
         />
         <label htmlFor="date"></label>
         <input
           type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
+          name="date"
         />
         {error && (
           <p style={{ color: "red" }}>

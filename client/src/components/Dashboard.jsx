@@ -4,35 +4,24 @@ import { addTransactions, deleteTransaction } from "../redux/transactionSlice";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const [name, setName] = useState("");
-  const [amount, setAmount] = useState("");
-  const [date, setDate] = useState("");
-  const [type, setType] = useState("");
 
-  const { allTransactions, status, error } = useSelector(
+  const { allTransactions, status, error, totalExpense, totalIncome, balance } = useSelector(
     (state) => state.transactions
   );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.target);
 
+    const type = formData.get("type");
     if (!type || (type !== "INCOME" && type !== "EXPENSE")) {
       alert("Please select a valid transaction type.");
       return;
     }
 
     try {
-      const transactionData = {
-        name,
-        amount: Number(amount),
-        date: date || new Date(),
-        type,
-      };
-      await dispatch(addTransactions(transactionData)).unwrap();
-      setName("");
-      setAmount("");
-      setDate("");
-      setType("");
+      await dispatch(addTransactions(formData)).unwrap();
+      e.target.reset();
     } catch (err) {
       console.error("Failed to add transaction:", err);
     }
@@ -56,26 +45,19 @@ const Dashboard = () => {
         <input
           type="text"
           name="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
         />
         <label htmlFor="amount">Amount</label>
         <input
           type="number"
           name="amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
         />
         <label htmlFor="date"></label>
         <input
           type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
+          name="date"
         />
         <select
           name="type"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
         >
           <option disabled value="">
             Select Type
@@ -93,6 +75,9 @@ const Dashboard = () => {
       </form>
 
       <div className="transaction-container">
+        <h3>Total Income: {totalIncome}</h3>
+        <h3>Total Expense: {totalExpense}</h3>
+        <h3>Balance: {balance}</h3>
         <h1>All Transactions</h1>
         {allTransactions.length === 0 ? (
           <p>No transactions found.</p>
