@@ -38,9 +38,9 @@ export const login = createAsyncThunk(
   }
 );
 
-
 export const logout = createAsyncThunk(
-  "auth/logout", async(_, {rejectWithValue}) => {
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
     try {
       await axiosInstance.post("/user/logout", {}, { withCredentials: true });
       return;
@@ -49,23 +49,16 @@ export const logout = createAsyncThunk(
         error.response?.data || { message: "Logout failed" }
       );
     }
-  })
+  }
+);
 
 export const signup = createAsyncThunk(
   "auth/signup",
-  async ({ name, email, password }, { rejectWithValue }) => {
+  async (formData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(
-        "/user/signup",
-        {
-          name,
-          email,
-          password,
-        },
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await axiosInstance.post("/user/signup", formData, {
+        withCredentials: true,
+      });
       return response.data.message;
     } catch (err) {
       return rejectWithValue(

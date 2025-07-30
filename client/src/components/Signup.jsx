@@ -4,17 +4,15 @@ import { useDispatch } from "react-redux";
 import { signup } from "../redux/authSlice";
 
 function Signup() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [msg, setMsg] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.target);
     try {
-      await dispatch(signup({ name, email, password })).unwrap();
+      await dispatch(signup(formData)).unwrap();
       navigate("/user/login");
     } catch (error) {
       setMsg(error.message || "Signup failed. Please try again.");
@@ -31,22 +29,16 @@ function Signup() {
         <input
           type="text"
           name="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
         />
         <label htmlFor="email">Email</label>
         <input
           type="email"
           name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
         />
         <label htmlFor="password">Password</label>
         <input
           type="password"
           name="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
         />
         <button type="submit">Signup</button>
       </form>
