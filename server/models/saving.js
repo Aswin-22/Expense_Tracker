@@ -7,12 +7,11 @@ const savingSchema = new Schema(
     goalAmount: { type: Number, required: true },
     currentAmount: { type: Number, default: 0 },
     date: { type: Date, default: Date.now },
-    deposits: [{ type: Schema.Types.ObjectId, ref: "savingDeposit" }],
+    deposits: [{ type: Schema.Types.ObjectId, ref: "SavingDeposit" }],
     name: { type: String, required: true },
   },
   { timestamps: true }
 );
 
-const Saving = mongoose.model("SAVING",savingSchema);
-
+const Saving = mongoose.model("Saving", savingSchema);
 module.exports = Saving;

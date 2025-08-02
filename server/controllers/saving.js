@@ -1,62 +1,62 @@
-import mongoose from "mongoose";
-import Saving from "../models/Savings.js";
-import SavingDeposit from "../models/SavingsDeposit.js";
+const mongoose = require("mongoose");
+const Saving = require("../models/Savings.js");
+const SavingDeposit = require("../models/SavingsDeposit.js");
+const { withTransaction } = require("../utils/transaction.js");
 
-
-export const addDeposit = async (req, res) => {
+const addDeposit = async (req, res) => {
   const { savingsId } = req.params;
   const { amount, note } = req.body;
-  const userId = req.user._id; 
+  const userId = req.user._id;
 
-  const session = await mongoose.startSession();
   try {
-    session.startTransaction();
-    const saving = await Saving.findOne({ _id: savingsId, user: userId }).session(session);
-    if (!saving) {
-      throw new Error("Saving not found or not owned by user");
-    }
+    const result = await withTransaction(async (session) => {
+      const saving = await Saving.findOne({ 
+        _id: savingsId, 
+        userId: userId 
+      }).session(session);
+      
+      if (!saving) {
+        throw new Error("Saving not found or not owned by user");
+      }
 
-    const deposit = await SavingDeposit.create(
-      [
+      const deposit = await SavingDeposit.create([{
+        savingId: savingsId, 
+        amount,
+        note,
+      }], { session });
+
+      const createdDeposit = deposit[0];
+
+      await Saving.findByIdAndUpdate(
+        savingsId,
         {
-          savingsId,
-          amount,
-          note,
+          $inc: { currentAmount: amount },
+          $push: { deposits: createdDeposit._id },
         },
-      ],
-      { session }
-    );
-    const createdDeposit = deposit[0]; 
+        { session }
+      );
 
-    await Saving.findByIdAndUpdate(
-      savingsId,
-      {
-        $inc: { currentAmount: amount },
-        $push: { deposits: createdDeposit._id },
-      },
-      { session }
-    );
+      return createdDeposit;
+    });
 
-    await session.commitTransaction();
-    res.status(201).json({ success: true, deposit: createdDeposit });
+    res.status(201).json({ success: true, deposit: result });
   } catch (err) {
-    await session.abortTransaction();
     console.error("addDeposit error:", err);
-    res.status(400).json({ success: false, message: err.message || "Failed to add deposit" });
-  } finally {
-    session.endSession();
+    res.status(400).json({ 
+      success: false, 
+      message: err.message || "Failed to add deposit" 
+    });
   }
 };
 
-
-export const createSaving = async (req, res) => {
+const createSaving = async (req, res) => {
   const { savingName, goalAmount } = req.body;
   const userId = req.user._id;
 
   try {
     const saving = await Saving.create({
-      user: userId,
-      savingName,
+      userId: userId, 
+      name: savingName, 
       goalAmount,
       currentAmount: 0,
       deposits: [],
@@ -67,31 +67,36 @@ export const createSaving = async (req, res) => {
   }
 };
 
-
-export const deleteSaving = async (req, res) => {
+const deleteSaving = async (req, res) => {
   const { savingsId } = req.params;
   const userId = req.user._id;
 
-  const session = await mongoose.startSession();
   try {
-    session.startTransaction();
-    const saving = await Saving.findOneAndDelete(
-      { _id: savingsId, user: userId },
-      { session }
-    );
-    if (!saving) throw new Error("Saving not found");
+    const result = await withTransaction(async (session) => {
+      const saving = await Saving.findOneAndDelete(
+        { _id: savingsId, userId: userId }, 
+        { session }
+      );
+      
+      if (!saving) {
+        throw new Error("Saving not found");
+      }
 
-    await SavingDeposit.deleteMany({ savingsId: saving._id }, { session });
+      await SavingDeposit.deleteMany({ 
+        savingId: saving._id 
+      }, { session });
 
-    await session.commitTransaction();
+      return saving;
+    });
+
     res.json({ success: true });
   } catch (err) {
-    await session.abortTransaction();
     res.status(400).json({ success: false, message: err.message });
-  } finally {
-    session.endSession();
   }
 };
 
-
-
+module.exports = {
+  addDeposit,
+  createSaving,
+  deleteSaving
+};
