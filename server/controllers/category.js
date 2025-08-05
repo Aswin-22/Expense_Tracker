@@ -1,6 +1,6 @@
-const Category = require("../models/category");
+import Category from "../models/category.js";
 
-const addCategory = async (req, res) => {
+export const addCategory = async (req, res) => {
   const { name, color, transactionId } = req.body;
   try {
     const category = await Category.create({
@@ -14,7 +14,7 @@ const addCategory = async (req, res) => {
   }
 };
 
-const deleteCategory = async (req, res) => {
+export const deleteCategory = async (req, res) => {
   const { categoryId } = req.params;
 
   try {
@@ -29,4 +29,3 @@ const deleteCategory = async (req, res) => {
   }
 };
 
-module.exports = { addCategory, deleteCategory };

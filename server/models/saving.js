@@ -1,9 +1,8 @@
-const mongoose = require("mongoose");
-const { Schema } = mongoose;
+import mongoose from "mongoose";
 
-const savingSchema = new Schema(
+const savingSchema = new mongoose.Schema(
   {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     goalAmount: { type: Number, required: true },
     currentAmount: { type: Number, default: 0 },
     date: { type: Date, default: Date.now },
@@ -14,4 +13,4 @@ const savingSchema = new Schema(
 );
 
 const Saving = mongoose.model("Saving", savingSchema);
-module.exports = Saving;
+export default Saving;

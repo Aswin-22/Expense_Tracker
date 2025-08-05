@@ -1,9 +1,8 @@
-const mongoose = require("mongoose");
-const { Schema } = mongoose;
+import mongoose from "mongoose"
 
-const savingDepositSchema = new Schema(
+const savingDepositSchema = new mongoose.Schema(
   {
-    savingId: { type: Schema.Types.ObjectId, ref: "Saving", required: true },
+    savingId: { type: mongoose.Schema.Types.ObjectId, ref: "Saving", required: true },
     amount: { type: Number, required: true },
     note: { type: String },
     date: { type: Date, default: Date.now },
@@ -14,4 +13,4 @@ const savingDepositSchema = new Schema(
 );
 
 const SavingDeposit = mongoose.model("SavingDeposit", savingDepositSchema);
-module.exports = SavingDeposit;
+export default SavingDeposit;

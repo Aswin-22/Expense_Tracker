@@ -1,6 +1,6 @@
-const Transaction = require("../models/transaction");
+import Transaction from "../models/transaction.js";
 
-async function handleNewTransaction(req, res, next) {
+export async function handleNewTransaction(req, res, next) {
   const { amount, date, type, name } = req.body;
 
   try {
@@ -20,7 +20,7 @@ async function handleNewTransaction(req, res, next) {
   }
 }
 
-async function getAllTransactions(req, res, next) {
+export async function getAllTransactions(req, res, next) {
   try {
     const transactions = await Transaction.find({ userId: req.user._id });
     if (!transactions) {
@@ -34,7 +34,7 @@ async function getAllTransactions(req, res, next) {
   }
 }
 
-async function deleteTransaction(req, res, next) {
+export async function deleteTransaction(req, res, next) {
   const { id } = req.params;
 
   try {
@@ -50,8 +50,3 @@ async function deleteTransaction(req, res, next) {
   }
 }
 
-module.exports = {
-  handleNewTransaction,
-  getAllTransactions,
-  deleteTransaction,
-};

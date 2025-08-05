@@ -1,9 +1,8 @@
-const mongoose = require("mongoose");
-const Saving = require("../models/Savings.js");
-const SavingDeposit = require("../models/SavingsDeposit.js");
-const { withTransaction } = require("../utils/transaction.js");
+import Saving from "../models/Savings.js" 
+import SavingDeposit from "../models/SavingsDeposit.js";
+import { withTransaction } from "../utils/transaction.js"
 
-const addDeposit = async (req, res) => {
+export const addDeposit = async (req, res) => {
   const { savingsId } = req.params;
   const { amount, note } = req.body;
   const userId = req.user._id;
@@ -49,7 +48,7 @@ const addDeposit = async (req, res) => {
   }
 };
 
-const createSaving = async (req, res) => {
+export const createSaving = async (req, res) => {
   const { savingName, goalAmount } = req.body;
   const userId = req.user._id;
 
@@ -67,7 +66,7 @@ const createSaving = async (req, res) => {
   }
 };
 
-const deleteSaving = async (req, res) => {
+export const deleteSaving = async (req, res) => {
   const { savingsId } = req.params;
   const userId = req.user._id;
 
@@ -93,10 +92,4 @@ const deleteSaving = async (req, res) => {
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
-};
-
-module.exports = {
-  addDeposit,
-  createSaving,
-  deleteSaving
 };

@@ -1,14 +1,14 @@
-const dotenv = require("dotenv");
+import dotenv from "dotenv";
 dotenv.config();
 
-const cors = require("cors");
-const express = require("express");
-const cookieParser = require("cookie-parser");
+import cors from "cors";
+import express from "express";
+import cookieParser from "cookie-parser";
 
-const { connectDb } = require("./config/db");
-const userRouter = require("./routes/user");
-const transactionRouter = require("./routes/transaction");
-const errorHandler = require("./middlewares/errorMiddleware");
+import connectDb  from "./config/db.js";
+import userRouter from "./routes/user.js";
+import transactionRouter from "./routes/transaction.js";
+import errorHandler from "./middlewares/errorMiddleware.js";
 
 const app = express();
 const port = process.env.PORT || 3000;

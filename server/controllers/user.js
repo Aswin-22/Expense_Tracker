@@ -1,8 +1,8 @@
-const User = require("../models/user");
-const jwt = require("jsonwebtoken");
-const generateToken = require("../utils/generateToken");
+import User from "../models/user.js"
+import jwt from "jsonwebtoken"
+import generateToken from "../utils/generateToken.js"
 
-async function registerUser(req, res, next) {
+export async function registerUser(req, res, next) {
   const { name, email, password } = req.body;
 
   try {
@@ -33,7 +33,7 @@ async function registerUser(req, res, next) {
   }
 }
 
-async function loginUser(req, res, next) {
+export async function loginUser(req, res, next) {
   const { email, password } = req.body;
 
   try {
@@ -56,7 +56,7 @@ async function loginUser(req, res, next) {
   }
 }
 
-const getUserProfile = async (req, res, next) => {
+export const getUserProfile = async (req, res, next) => {
   const user = await User.findById(req.user.id);
   try {
     if (user) {
@@ -75,7 +75,7 @@ const getUserProfile = async (req, res, next) => {
   }
 };
 
-async function logOut(req, res, next) {
+export async function logOut(req, res, next) {
   try {
     res.clearCookie("jwt");
     res.json({ message: "Logged out successfully" });
@@ -84,7 +84,7 @@ async function logOut(req, res, next) {
   }
 }
 
-async function authMe(req, res, next) {
+export async function authMe(req, res, next) {
   try {
     const token = req.cookies.jwt;
     if (!token) {
@@ -108,4 +108,3 @@ async function authMe(req, res, next) {
   }
 }
 
-module.exports = { registerUser, loginUser, getUserProfile, logOut, authMe };

@@ -15,4 +15,4 @@ npm-debug.log*
 build/
 dist/
 
-start-mongo-rs.bat
+test-transaction.js
