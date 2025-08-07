@@ -6,7 +6,7 @@ import {
 } from "../controllers/transaction.js"
 import { protect } from "../middlewares/authMiddleware.js";
 
- const router = express.Router();
+const router = express.Router();
 
 router.post("/", protect, handleNewTransaction);
 router.get("/", protect, getAllTransactions);

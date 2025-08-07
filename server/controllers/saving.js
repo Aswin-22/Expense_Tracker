@@ -1,6 +1,6 @@
-import Saving from "../models/Savings.js" 
-import SavingDeposit from "../models/SavingsDeposit.js";
-import { withTransaction } from "../utils/transaction.js"
+import Saving from "../models/saving.js" 
+import SavingDeposit from "../models/savingDeposit.js";
+import  withTransaction  from "../utils/savingsUtil.js"
 
 export const addDeposit = async (req, res) => {
   const { savingsId } = req.params;

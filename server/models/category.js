@@ -11,7 +11,7 @@ const categorySchema = mongoose.Schema({
         required: true
     },
     transactionId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "transaction",
         required: true
     }
