@@ -5,7 +5,7 @@ export const fetchAndSetTransactions = createAsyncThunk(
   "transactions/fetchAndSetTransactions",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/transactions", {
+      const response = await axiosInstance.get("/api/transactions", {
         withCredentials: true,
       });
       return response.data;
@@ -20,7 +20,7 @@ export const addTransactions = createAsyncThunk(
   async (transactionData, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
-        "/transactions",
+        "/api/transactions",
         transactionData,
         { withCredentials: true }
       );
@@ -56,7 +56,7 @@ export const deleteTransaction = createAsyncThunk(
   "transactions/deleteTransaction",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(`/transactions/${id}`, {
+      const response = await axiosInstance.delete(`/api/transactions/${id}`, {
         withCredentials: true,
       });
       return { _id: id };

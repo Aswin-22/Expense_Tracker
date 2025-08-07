@@ -26,8 +26,8 @@ app.use(
   })
 );
 
-app.use("/user", userRouter);
-app.use("/transactions", transactionRouter);
+app.use("/api/user", userRouter);
+app.use("/api/transactions", transactionRouter);
 
 app.use(errorHandler);
 
