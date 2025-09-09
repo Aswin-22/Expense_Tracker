@@ -10,9 +10,9 @@ const categorySchema = mongoose.Schema({
         enum: ["red", "blue", "green", "purple", "orange"],
         required: true
     },
-    transactionId: {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "transaction",
+        ref: "User",
         required: true
     }
 },

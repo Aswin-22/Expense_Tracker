@@ -1,11 +1,21 @@
+import Category from "../models/category.js";
 import Transaction from "../models/transaction.js";
 
 export async function handleNewTransaction(req, res, next) {
-  const { amount, date, type, name } = req.body;
+  const { amount, date, type, name, categoryId } = req.body;
 
   try {
+
+    const category = Category.findOne({_id: categoryId, userId: req.user._id})
+    if(!category){
+      const err = new Error("Invalid category");
+      res.status(400)
+      throw err
+    }
+
     const newTransaction = await Transaction.create({
       userId: req.user._id,
+      categoryId,
       amount,
       date: date || new Date(),
       type,
@@ -22,7 +32,7 @@ export async function handleNewTransaction(req, res, next) {
 
 export async function getAllTransactions(req, res, next) {
   try {
-    const transactions = await Transaction.find({ userId: req.user._id });
+    const transactions = await Transaction.find({ userId: req.user._id }).populate("categoryId", "name color")
     if (!transactions) {
       const err = new Error("No transactions found");
       err.statusCode = 404;
