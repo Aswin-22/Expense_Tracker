@@ -1,33 +1,30 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../axiosInstance";
 
+/* ================= CHECK AUTH ================= */
 export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/user/auth", {
+      const response = await axiosInstance.get("/api/user/auth", {
         withCredentials: true,
       });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data);
     }
   }
 );
 
+/* ================= LOGIN ================= */
 export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
         "/api/user/login",
-        {
-          email,
-          password,
-        },
-        {
-          withCredentials: true,
-        }
+        { email, password },
+        { withCredentials: true }
       );
       return response.data;
     } catch (error) {
@@ -38,12 +35,16 @@ export const login = createAsyncThunk(
   }
 );
 
+/* ================= LOGOUT ================= */
 export const logout = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      await axiosInstance.post("/api/user/logout", {}, { withCredentials: true });
-      return;
+      await axiosInstance.post(
+        "/api/user/logout",
+        {},
+        { withCredentials: true }
+      );
     } catch (error) {
       return rejectWithValue(
         error.response?.data || { message: "Logout failed" }
@@ -52,22 +53,27 @@ export const logout = createAsyncThunk(
   }
 );
 
+/* ================= SIGNUP ================= */
 export const signup = createAsyncThunk(
   "auth/signup",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("/api/user/signup", formData, {
-        withCredentials: true,
-      });
+      const response = await axiosInstance.post(
+        "/api/user/signup",
+        formData,
+        { withCredentials: true }
+      );
       return response.data.message;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || "Signup failed. Please try again."
+        err.response?.data?.message ||
+          "Signup failed. Please try again."
       );
     }
   }
 );
 
+/* ================= SLICE ================= */
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -93,6 +99,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.loading = false;
       })
+
       .addCase(login.pending, (state) => {
         state.loading = true;
       })
@@ -108,6 +115,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.loading = false;
       })
+
       .addCase(signup.pending, (state) => {
         state.loading = true;
       })
@@ -119,6 +127,7 @@ const authSlice = createSlice({
         state.error = action.payload;
         state.loading = false;
       })
+
       .addCase(logout.pending, (state) => {
         state.loading = true;
       })

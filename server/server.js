@@ -7,9 +7,7 @@ import cookieParser from "cookie-parser";
 
 import connectDb  from "./config/db.js";
 import userRouter from "./routes/user.js";
-import transactionRouter from "./routes/transaction.js";
-import savingRouter from "./routes/saving.js"
-import categoryRouter from "./routes/category.js"
+import transactionRouter from "./routes/transaction.js"
 
 
 import errorHandler from "./middlewares/errorMiddleware.js";
@@ -32,8 +30,6 @@ app.use(
 
 app.use("/api/user", userRouter);
 app.use("/api/transactions", transactionRouter);
-app.use("/api/saving", savingRouter);
-app.use("/api/category", categoryRouter);
 
 app.use(errorHandler);
 

@@ -1,21 +1,12 @@
-import Category from "../models/category.js";
 import Transaction from "../models/transaction.js";
 
+// CREATE TRANSACTION
 export async function handleNewTransaction(req, res, next) {
-  const { amount, date, type, name, categoryId } = req.body;
+  const { amount, date, type, name } = req.body;
 
   try {
-
-    const category = Category.findOne({_id: categoryId, userId: req.user._id})
-    if(!category){
-      const err = new Error("Invalid category");
-      res.status(400)
-      throw err
-    }
-
     const newTransaction = await Transaction.create({
       userId: req.user._id,
-      categoryId,
       amount,
       date: date || new Date(),
       type,
@@ -24,39 +15,46 @@ export async function handleNewTransaction(req, res, next) {
 
     res.status(201).json(newTransaction);
   } catch (error) {
-    const err = new Error("Error registering transaction" + error.message);
+    const err = new Error("Error creating transaction: " + error.message);
     err.statusCode = 400;
     next(err);
   }
 }
 
+// GET ALL TRANSACTIONS (FOR LOGGED-IN USER)
 export async function getAllTransactions(req, res, next) {
   try {
-    const transactions = await Transaction.find({ userId: req.user._id }).populate("categoryId", "name color")
-    if (!transactions) {
-      const err = new Error("No transactions found");
-      err.statusCode = 404;
-      throw err;
-    }
+    const transactions = await Transaction.find({
+      userId: req.user._id,
+    }).sort({ date: -1 });
+
     res.status(200).json(transactions);
   } catch (error) {
     next(error);
   }
 }
 
+// DELETE TRANSACTION (SECURE: USER-SCOPED)
 export async function deleteTransaction(req, res, next) {
   const { id } = req.params;
 
   try {
-    const transaction = await Transaction.findByIdAndDelete(id);
+    const transaction = await Transaction.findOneAndDelete({
+      _id: id,
+      userId: req.user._id,
+    });
+
     if (!transaction) {
-      const err = new Error("No transactions found");
+      const err = new Error("Transaction not found or unauthorized");
       err.statusCode = 404;
       throw err;
     }
-    res.status(200).json({ message: "Transaction deleted successfully", _id: id });
+
+    res.status(200).json({
+      message: "Transaction deleted successfully",
+      _id: id,
+    });
   } catch (error) {
     next(error);
   }
 }
-
