@@ -5,10 +5,10 @@ import cors from "cors";
 import express from "express";
 import cookieParser from "cookie-parser";
 
-import connectDb  from "./config/db.js";
+import connectDb from "./config/db.js";
 import userRouter from "./routes/user.js";
-import transactionRouter from "./routes/transaction.js"
-
+import transactionRouter from "./routes/transaction.js";
+import categoryRouter from "./routes/category.js";
 
 import errorHandler from "./middlewares/errorMiddleware.js";
 
@@ -30,6 +30,7 @@ app.use(
 
 app.use("/api/user", userRouter);
 app.use("/api/transactions", transactionRouter);
+app.use("/api/categories", categoryRouter);
 
 app.use(errorHandler);
 
