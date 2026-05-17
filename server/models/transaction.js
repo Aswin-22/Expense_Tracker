@@ -25,6 +25,11 @@ const transactionSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      default: null,
+    },
   },
   {
     timestamps: true,
