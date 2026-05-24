@@ -1,10 +1,8 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../redux/authSlice";
 import { fetchAndSetTransactions } from "../redux/transactionSlice";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-
-import { useSelector } from "react-redux";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -26,27 +24,40 @@ function Login() {
 
   return (
     <div className="form-container">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="email">Email</label>
-        <input
-          type="email"
-          name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <label htmlFor="password">Password</label>
-        <input
-          type="password"
-          name="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error && <p style={{ color: "red" }}>{error.message}</p>}
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging In..." : "Login"}
-        </button>
-      </form>
+      <div className="form-card">
+        <h2>Login</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
+          {error && <p className="form-error">{error.message}</p>}
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+        <div className="form-footer">
+          Don't have an account? <Link to="/user/signup">Sign up</Link>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addTransactions, deleteTransaction } from "../redux/transactionSlice";
 
@@ -20,7 +19,7 @@ const Income = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    formData.append("type", "INCOME")
+    formData.append("type", "INCOME");
     try {
       await dispatch(addTransactions(formData)).unwrap();
       e.target.reset();
@@ -30,45 +29,62 @@ const Income = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="name">Name</label>
-        <input
-          type="text"
-          name="name"
-        />
-        <label htmlFor="amount">Amount</label>
-        <input
-          type="text"
-          name="amount"
-        />
-        <label htmlFor="date"></label>
-        <input
-          type="date"
-          name="date"
-        />
-        {error && (
-          <p style={{ color: "red" }}>
-            {typeof error === "string" ? error : error.message}
-          </p>
-        )}
+    <div className="page-wrapper">
 
-        <button type="submit">Add Transaction</button>
-      </form>
+      {/* Add Income Form */}
+      <div className="card" style={{ marginBottom: "var(--space-8)" }}>
+        <h3 style={{ marginBottom: "var(--space-6)" }}>Add Income</h3>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <input id="name" type="text" name="name" placeholder="e.g. Salary, Freelance" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="amount">Amount (₹)</label>
+            <input id="amount" type="number" name="amount" placeholder="0.00" min="0" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="date">Date</label>
+            <input id="date" type="date" name="date" />
+          </div>
+          {error && (
+            <p className="form-error">
+              {typeof error === "string" ? error : error.message}
+            </p>
+          )}
+          <button type="submit" className="btn btn-primary">
+            Add Income
+          </button>
+        </form>
+      </div>
 
-      <div className="transaction-container">
-        {status === "loading" && <p>Loading transactions...</p>}
-        {status === "failed" && <p>Error: {error}</p>}
-        <h1>All Transactions</h1>
+      {/* Income List */}
+      <div className="card">
+        <h3 style={{ marginBottom: "var(--space-6)" }}>All Income</h3>
+        {status === "loading" && <p className="loading-state">Loading...</p>}
         {incomeTransactions.length === 0 ? (
-          <p>No transactions found.</p>
+          <div className="empty-state">
+            <p>No income transactions yet. Add one above.</p>
+          </div>
         ) : (
-          <ul>
+          <ul className="transaction-list">
             {incomeTransactions.map((transaction) => (
-              <li key={transaction._id}>
-                <strong>{transaction.name}</strong> - ₹{transaction.amount} (
-                {transaction.type})
-                <button onClick={() => handleDelete(transaction._id)}>Delete transaction</button>
+              <li key={transaction._id} className="transaction-item">
+                <div className="transaction-info">
+                  <span className="font-medium">{transaction.name}</span>
+                  <span className="badge badge-income">INCOME</span>
+                </div>
+                <div className="transaction-right">
+                  <span className="font-semibold text-success">
+                    ₹{transaction.amount}
+                  </span>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => handleDelete(transaction._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
