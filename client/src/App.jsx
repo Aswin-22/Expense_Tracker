@@ -8,8 +8,6 @@ import {
   Signup,
   NotFound,
   Dashboard,
-  Income,
-  Expense,
 } from "./components/index";
 import Nav from "./components/Nav";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -40,18 +38,12 @@ function App() {
           }
         />
         <Route
-          path="/income"
+          path="/transactions"
           element={
             <ProtectedRoute>
-              <Income />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/expense"
-          element={
-            <ProtectedRoute>
-              <Expense />
+              <div className="page-wrapper">
+                <h2>Transactions — coming soon</h2>
+              </div>
             </ProtectedRoute>
           }
         />

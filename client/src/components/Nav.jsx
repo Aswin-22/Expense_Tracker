@@ -3,9 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/authSlice";
 
 function Nav() {
-  const { isAuthenticated, user, loading } = useSelector(
-    (state) => state.auth
-  );
+  const { isAuthenticated, user, loading } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -49,13 +47,8 @@ function Nav() {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/income" className="nav-items">
-                Income
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/expense" className="nav-items">
-                Expense
+              <NavLink to="/transactions" className="nav-items">
+                Transactions
               </NavLink>
             </li>
           </ul>

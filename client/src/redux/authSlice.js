@@ -13,7 +13,7 @@ export const checkAuth = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data);
     }
-  }
+  },
 );
 
 /* ================= LOGIN ================= */
@@ -24,15 +24,15 @@ export const login = createAsyncThunk(
       const response = await axiosInstance.post(
         "/api/user/login",
         { email, password },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || { message: "Login failed" }
+        error.response?.data || { message: "Login failed" },
       );
     }
-  }
+  },
 );
 
 /* ================= LOGOUT ================= */
@@ -43,14 +43,14 @@ export const logout = createAsyncThunk(
       await axiosInstance.post(
         "/api/user/logout",
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || { message: "Logout failed" }
+        error.response?.data || { message: "Logout failed" },
       );
     }
-  }
+  },
 );
 
 /* ================= SIGNUP ================= */
@@ -58,32 +58,33 @@ export const signup = createAsyncThunk(
   "auth/signup",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(
-        "/api/user/signup",
-        formData,
-        { withCredentials: true }
-      );
+      const response = await axiosInstance.post("/api/user/signup", formData, {
+        withCredentials: true,
+      });
       return response.data.message;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message ||
-          "Signup failed. Please try again."
+        err.response?.data?.message || "Signup failed. Please try again.",
       );
     }
-  }
+  },
 );
 
 /* ================= SLICE ================= */
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-  user: null,
-  error: null,
-  isAuthenticated: false,
-  loading: false,
-  authChecked: false,   
-},
-  reducers: {},
+    user: null,
+    error: null,
+    isAuthenticated: false,
+    loading: false,
+    authChecked: false,
+  },
+  reducers: {
+    clearAuthError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(checkAuth.pending, (state) => {
@@ -93,14 +94,13 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload;
         state.loading = false;
-        state.authChecked = true;    
+        state.authChecked = true;
       })
-      .addCase(checkAuth.rejected, (state, action) => {
-        state.error = action.payload;
+      .addCase(checkAuth.rejected, (state) => {
         state.user = null;
         state.isAuthenticated = false;
         state.loading = false;
-        state.authChecked = true;  
+        state.authChecked = true;
       })
 
       .addCase(login.pending, (state) => {
@@ -147,4 +147,5 @@ const authSlice = createSlice({
   },
 });
 
+export const { clearAuthError } = authSlice.actions;
 export default authSlice.reducer;
