@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, NavLink } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/authSlice";
 
@@ -22,29 +22,49 @@ function Nav() {
   return (
     <nav>
       <span className="logo">
-        <Link to="/" className="nav-items">
-          Logo
-        </Link>
+        <Link to="/">💰 Expense Tracker</Link>
       </span>
 
       {loading ? (
-        <div>Loading...</div>
+        <div className="text-muted text-sm">Loading...</div>
       ) : !isAuthenticated ? (
         <ul>
           <li>
-            <Link to="/user/login">Login</Link>
-            <Link to="/user/signup">Signup</Link>
+            <NavLink to="/user/login" className="nav-items">
+              Login
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/user/signup" className="nav-items">
+              Signup
+            </NavLink>
           </li>
         </ul>
       ) : (
         <>
-          <span>{user?.name || "User"}</span>
           <ul>
-            <li><Link to="/dashboard">Dashboard</Link></li>
-            <li><Link to="/income">Income</Link></li>
-            <li><Link to="/expense">Expense</Link></li>
-            <li><button onClick={handleLogout}>Logout</button></li>
+            <li>
+              <NavLink to="/dashboard" className="nav-items">
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/income" className="nav-items">
+                Income
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/expense" className="nav-items">
+                Expense
+              </NavLink>
+            </li>
           </ul>
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-medium">{user?.name || "User"}</span>
+            <button className="btn btn-ghost" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </>
       )}
     </nav>
