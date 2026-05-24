@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addTransactions, deleteTransaction } from "../redux/transactionSlice";
 
@@ -30,37 +29,62 @@ const Expense = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="name">Name</label>
-        <input type="text" name="name" />
-        <label htmlFor="amount">Amount</label>
-        <input type="text" name="amount" />
-        <label htmlFor="date"></label>
-        <input type="date" name="date" />
-        {error && (
-          <p style={{ color: "red" }}>
-            {typeof error === "string" ? error : error.message}
-          </p>
-        )}
+    <div className="page-wrapper">
 
-        <button type="submit">Add Transaction</button>
-      </form>
-      {status === "loading" && <p>Loading transactions...</p>}
-      {status === "failed" && <p>Error: {error}</p>}
-      <div className="transaction-container">
-        <h1>All Expenses</h1>
+      {/* Add Expense Form */}
+      <div className="card" style={{ marginBottom: "var(--space-8)" }}>
+        <h3 style={{ marginBottom: "var(--space-6)" }}>Add Expense</h3>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <input id="name" type="text" name="name" placeholder="e.g. Lunch, Rent" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="amount">Amount (₹)</label>
+            <input id="amount" type="number" name="amount" placeholder="0.00" min="0" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="date">Date</label>
+            <input id="date" type="date" name="date" />
+          </div>
+          {error && (
+            <p className="form-error">
+              {typeof error === "string" ? error : error.message}
+            </p>
+          )}
+          <button type="submit" className="btn btn-primary">
+            Add Expense
+          </button>
+        </form>
+      </div>
+
+      {/* Expense List */}
+      <div className="card">
+        <h3 style={{ marginBottom: "var(--space-6)" }}>All Expenses</h3>
+        {status === "loading" && <p className="loading-state">Loading...</p>}
         {expenseTransactions.length === 0 ? (
-          <p>No transactions found.</p>
+          <div className="empty-state">
+            <p>No expense transactions yet. Add one above.</p>
+          </div>
         ) : (
-          <ul>
+          <ul className="transaction-list">
             {expenseTransactions.map((transaction) => (
-              <li key={transaction._id}>
-                <strong>{transaction.name}</strong> - ₹{transaction.amount} (
-                {transaction.type})
-                <button onClick={() => handleDelete(transaction._id)}>
-                  Delete transaction
-                </button>
+              <li key={transaction._id} className="transaction-item">
+                <div className="transaction-info">
+                  <span className="font-medium">{transaction.name}</span>
+                  <span className="badge badge-expense">EXPENSE</span>
+                </div>
+                <div className="transaction-right">
+                  <span className="font-semibold text-danger">
+                    ₹{transaction.amount}
+                  </span>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => handleDelete(transaction._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
