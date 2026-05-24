@@ -16,7 +16,6 @@ export async function registerUser(req, res, next) {
 
     const user = await User.create({ name, email, password });
     if (user) {
-      console.log(user);
       res.status(201).json({
         _id: user._id,
         name: user.name,
