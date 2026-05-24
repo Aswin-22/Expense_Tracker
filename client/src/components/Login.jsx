@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../redux/authSlice";
 import { fetchAndSetTransactions } from "../redux/transactionSlice";
+import { useEffect } from "react";
+import { clearAuthError } from "../redux/authSlice";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -10,6 +12,10 @@ function Login() {
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(clearAuthError());
+  }, [dispatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
