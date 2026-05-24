@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { checkAuth } from "./redux/authSlice";
-import { fetchAndSetTransactions } from "./redux/transactionSlice";
 import { Routes, Route } from "react-router-dom";
 import {
   Home,
@@ -13,25 +12,50 @@ import {
   Expense,
 } from "./components/index";
 import Nav from "./components/Nav";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(checkAuth());
-    dispatch(fetchAndSetTransactions());
   }, [dispatch]);
 
   return (
     <>
       <Nav />
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<Home />} />
         <Route path="/user/login" element={<Login />} />
         <Route path="/user/signup" element={<Signup />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/income" element={<Income />} />
-        <Route path="/expense" element={<Expense />} />
+
+        {/* Protected routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/income"
+          element={
+            <ProtectedRoute>
+              <Income />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/expense"
+          element={
+            <ProtectedRoute>
+              <Expense />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
