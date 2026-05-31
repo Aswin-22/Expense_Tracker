@@ -1,17 +1,11 @@
 import { useSelector, useDispatch } from "react-redux";
-import {
-  addTransactions,
-  deleteTransaction,
-  fetchAndSetTransactions,
-  clearError,
-} from "../redux/transactionSlice";
+import { fetchAndSetTransactions } from "../redux/transactionSlice";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-
-  const { userInfo } = useSelector((state) => state.auth);
-
+  const { user } = useSelector((state) => state.auth);
   const {
     allTransactions,
     status,
@@ -22,46 +16,29 @@ const Dashboard = () => {
   } = useSelector((state) => state.transactions);
 
   useEffect(() => {
-    if (userInfo) {
+    if (user) {
       dispatch(fetchAndSetTransactions());
     }
-  }, [dispatch, userInfo]);
+  }, [dispatch, user]);
 
-  useEffect(() => {
-    dispatch(clearError());
-  }, [dispatch]);
+  if (status === "loading") {
+    return <div className="loading-state"><p>Loading...</p></div>;
+  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
+  if (status === "failed") {
+    return <div className="empty-state"><p>Error: {error}</p></div>;
+  }
 
-    const type = formData.get("type");
-    if (!type || (type !== "INCOME" && type !== "EXPENSE")) {
-      alert("Please select a valid transaction type.");
-      return;
-    }
-
-    try {
-      await dispatch(addTransactions(formData)).unwrap();
-      e.target.reset();
-    } catch (err) {
-      console.error("Failed to add transaction:", err);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await dispatch(deleteTransaction(id)).unwrap();
-    } catch (err) {
-      console.error("Failed to delete transaction:", err);
-    }
-  };
-
-  if (status === "loading") return <p className="loading-state">Loading transactions...</p>;
-  if (status === "failed") return <p className="empty-state">Error: {error}</p>;
+  const recentTransactions = allTransactions.slice(0, 5);
 
   return (
     <div className="page-wrapper">
+
+      {/* Welcome */}
+      <div style={{ marginBottom: "var(--space-8)" }}>
+        <h2>Welcome back, {user?.name} 👋</h2>
+        <p className="text-muted">Here's your financial snapshot.</p>
+      </div>
 
       {/* Summary Cards */}
       <div className="summary-grid">
@@ -81,80 +58,44 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Add Transaction Form */}
-      <div className="card" style={{ marginBottom: "var(--space-8)" }}>
-        <h3 style={{ marginBottom: "var(--space-6)" }}>Add Transaction</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="name">Name</label>
-            <input id="name" type="text" name="name" placeholder="e.g. Lunch, Salary" />
-          </div>
-          <div className="form-group">
-            <label htmlFor="amount">Amount (₹)</label>
-            <input id="amount" type="number" name="amount" placeholder="0.00" min="0" />
-          </div>
-          <div className="form-group">
-            <label htmlFor="date">Date</label>
-            <input id="date" type="date" name="date" />
-          </div>
-          <div className="form-group">
-            <label htmlFor="type">Type</label>
-            <select id="type" name="type" defaultValue="">
-              <option disabled value="">Select Type</option>
-              <option value="INCOME">Income</option>
-              <option value="EXPENSE">Expense</option>
-            </select>
-          </div>
-          {error && (
-            <p className="form-error">
-              {typeof error === "string" ? error : error.message}
-            </p>
-          )}
-          <button type="submit" className="btn btn-primary">
-            Add Transaction
-          </button>
-        </form>
-      </div>
-
-      {/* Transaction List */}
+      {/* Recent Transactions */}
       <div className="card">
-        <h3 style={{ marginBottom: "var(--space-6)" }}>All Transactions</h3>
+        <div className="flex justify-between items-center"
+          style={{ marginBottom: "var(--space-6)" }}>
+          <h3>Recent Transactions</h3>
+          <Link to="/transactions" className="text-sm font-medium"
+            style={{ color: "var(--color-primary)" }}>
+            View all →
+          </Link>
+        </div>
+
         {allTransactions.length === 0 ? (
           <div className="empty-state">
-            <p>No transactions yet. Add one above.</p>
+            <p>No transactions yet.</p>
+            <Link to="/transactions" className="btn btn-primary"
+              style={{ marginTop: "var(--space-4)" }}>
+              Add your first transaction
+            </Link>
           </div>
         ) : (
           <ul className="transaction-list">
-            {allTransactions.map((transaction) => (
+            {recentTransactions.map((transaction) => (
               <li key={transaction._id} className="transaction-item">
                 <div className="transaction-info">
                   <span className="font-medium">{transaction.name}</span>
-                  <span
-                    className={`badge ${
-                      transaction.type === "INCOME"
-                        ? "badge-income"
-                        : "badge-expense"
-                    }`}
-                  >
+                  <span className={`badge ${transaction.type === "INCOME"
+                    ? "badge-income" : "badge-expense"}`}>
                     {transaction.type}
                   </span>
                 </div>
                 <div className="transaction-right">
-                  <span
-                    className={`font-semibold ${
-                      transaction.type === "INCOME"
-                        ? "text-success"
-                        : "text-danger"
-                    }`}
-                  >
+                  <span className={`font-semibold ${transaction.type === "INCOME"
+                    ? "text-success" : "text-danger"}`}>
                     ₹{transaction.amount}
                   </span>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => handleDelete(transaction._id)}
-                  >
-                    Delete
-                  </button>
+                  <span className="text-sm text-muted">
+                    {new Date(transaction.date).toLocaleDateString("en-IN")}
+                  </span>
                 </div>
               </li>
             ))}
