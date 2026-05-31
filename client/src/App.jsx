@@ -8,6 +8,7 @@ import {
   Signup,
   NotFound,
   Dashboard,
+  Transactions,
 } from "./components/index";
 import Nav from "./components/Nav";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -41,9 +42,7 @@ function App() {
           path="/transactions"
           element={
             <ProtectedRoute>
-              <div className="page-wrapper">
-                <h2>Transactions — coming soon</h2>
-              </div>
+              <Transactions />
             </ProtectedRoute>
           }
         />
