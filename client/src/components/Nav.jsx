@@ -47,6 +47,11 @@ function Nav() {
               </NavLink>
             </li>
             <li>
+              <NavLink to="/reports" className="nav-items">
+                Reports
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/transactions" className="nav-items">
                 Transactions
               </NavLink>
