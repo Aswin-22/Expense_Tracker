@@ -9,6 +9,7 @@ import {
   NotFound,
   Dashboard,
   Transactions,
+  Reports,
 } from "./components/index";
 import Nav from "./components/Nav";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -48,6 +49,14 @@ function App() {
         />
 
         <Route path="*" element={<NotFound />} />
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <Reports />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </>
   );

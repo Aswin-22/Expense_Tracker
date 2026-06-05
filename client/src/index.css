@@ -474,3 +474,14 @@ textarea:focus {
   cursor: pointer;
   width: auto;
 }
+
+/* ─────────────────────────────────────────
+   CHARTS
+───────────────────────────────────────── */
+.chart-tooltip {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-md);
+}
