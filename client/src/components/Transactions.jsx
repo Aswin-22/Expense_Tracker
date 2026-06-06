@@ -6,6 +6,8 @@ import {
   clearError,
 } from "../redux/transactionSlice";
 import { useEffect } from "react";
+import DateRangeFilter from "./DateRangeFilter";
+import { getCurrentMonthRange, isInRange } from "../utils/dateUtils";
 
 const Transactions = () => {
   const dispatch = useDispatch();
@@ -15,16 +17,19 @@ const Transactions = () => {
 
   const [filter, setFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("date-desc");
+  const [dateRange, setDateRange] = useState(getCurrentMonthRange());
 
   useEffect(() => {
     dispatch(clearError());
   }, [dispatch]);
 
-  // Filter then sort — derived from Redux state, no extra fetch needed
   const displayedTransactions = useMemo(() => {
     let result = [...allTransactions];
 
-    // Filter
+    // Date range filter
+    result = result.filter((t) => isInRange(t.date, dateRange.from, dateRange.to));
+
+    // Type filter
     if (filter !== "ALL") {
       result = result.filter((t) => t.type === filter);
     }
@@ -41,7 +46,7 @@ const Transactions = () => {
     }
 
     return result;
-  }, [allTransactions, filter, sortBy]);
+  }, [allTransactions, filter, sortBy, dateRange]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -127,12 +132,18 @@ const Transactions = () => {
       {/* Transaction List */}
       <div className="card">
 
-        {/* List Header — filter and sort controls */}
-        <div className="transaction-list-header">
-          <h3>All Transactions</h3>
-          <div className="transaction-controls">
+        {/* Date range filter */}
+        <DateRangeFilter
+          from={dateRange.from}
+          to={dateRange.to}
+          onChange={setDateRange}
+          onReset={() => setDateRange(getCurrentMonthRange())}
+        />
 
-            {/* Filter buttons */}
+        {/* List Header */}
+        <div className="transaction-list-header">
+          <h3>Transactions</h3>
+          <div className="transaction-controls">
             <div className="filter-group">
               {["ALL", "INCOME", "EXPENSE"].map((f) => (
                 <button
@@ -144,8 +155,6 @@ const Transactions = () => {
                 </button>
               ))}
             </div>
-
-            {/* Sort dropdown */}
             <select
               className="sort-select"
               value={sortBy}
@@ -159,21 +168,19 @@ const Transactions = () => {
           </div>
         </div>
 
-        {/* Results count */}
         <p className="text-sm text-muted" style={{ marginBottom: "var(--space-4)" }}>
           {displayedTransactions.length} transaction
           {displayedTransactions.length !== 1 ? "s" : ""}
         </p>
 
-        {/* List */}
         {status === "loading" ? (
           <div className="loading-state"><p>Loading...</p></div>
         ) : displayedTransactions.length === 0 ? (
           <div className="empty-state">
             <p>
               {filter === "ALL"
-                ? "No transactions yet. Add one above."
-                : `No ${filter.toLowerCase()} transactions found.`}
+                ? "No transactions found for this date range."
+                : `No ${filter.toLowerCase()} transactions found for this date range.`}
             </p>
           </div>
         ) : (
