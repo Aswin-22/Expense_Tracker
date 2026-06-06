@@ -10,8 +10,9 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import DateRangeFilter from "./DateRangeFilter";
+import { getCurrentMonthRange, isInRange } from "../utils/dateUtils";
 
-/* ── Helpers ── */
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -31,7 +32,6 @@ function formatAmount(value) {
   return `₹${value}`;
 }
 
-/* ── Custom Tooltip ── */
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
@@ -46,12 +46,19 @@ function CustomTooltip({ active, payload, label }) {
   );
 }
 
-/* ── Main Component ── */
 const Reports = () => {
   const { allTransactions } = useSelector((state) => state.transactions);
   const [activeChart, setActiveChart] = useState("trend");
+  const [dateRange, setDateRange] = useState(getCurrentMonthRange());
 
-  /* Monthly trend — last 6 months */
+  // Filter transactions by date range
+  const filteredTransactions = useMemo(() => {
+    return allTransactions.filter((t) =>
+      isInRange(t.date, dateRange.from, dateRange.to)
+    );
+  }, [allTransactions, dateRange]);
+
+  // Monthly trend — always uses last 6 months regardless of date filter
   const monthlyData = useMemo(() => {
     const months = getLast6Months();
     return months.map(({ year, month, label }) => {
@@ -69,9 +76,9 @@ const Reports = () => {
     });
   }, [allTransactions]);
 
-  /* Top 5 transactions by amount */
+  // Top 5 from filtered range
   const topTransactions = useMemo(() => {
-    return [...allTransactions]
+    return [...filteredTransactions]
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 5)
       .map((t) => ({
@@ -79,7 +86,7 @@ const Reports = () => {
         amount: t.amount,
         type: t.type,
       }));
-  }, [allTransactions]);
+  }, [filteredTransactions]);
 
   if (allTransactions.length === 0) {
     return (
@@ -95,13 +102,22 @@ const Reports = () => {
     <div className="page-wrapper">
 
       {/* Header */}
-      <div style={{ marginBottom: "var(--space-8)" }}>
+      <div style={{ marginBottom: "var(--space-6)" }}>
         <h2>Reports</h2>
         <p className="text-muted">Visual breakdown of your financial activity.</p>
       </div>
 
+      {/* Date range filter */}
+      <DateRangeFilter
+        from={dateRange.from}
+        to={dateRange.to}
+        onChange={setDateRange}
+        onReset={() => setDateRange(getCurrentMonthRange())}
+      />
+
       {/* Chart tabs */}
-      <div className="filter-group" style={{ marginBottom: "var(--space-6)", display: "inline-flex" }}>
+      <div className="filter-group"
+        style={{ marginBottom: "var(--space-6)", display: "inline-flex" }}>
         <button
           className={`filter-btn ${activeChart === "trend" ? "active" : ""}`}
           onClick={() => setActiveChart("trend")}
@@ -116,98 +132,86 @@ const Reports = () => {
         </button>
       </div>
 
-      {/* Monthly Income vs Expense Chart */}
+      {/* Monthly Trend */}
       {activeChart === "trend" && (
         <div className="card">
           <h3 style={{ marginBottom: "var(--space-6)" }}>
             Income vs Expense — Last 6 Months
           </h3>
           <ResponsiveContainer width="100%" height={340}>
-            <BarChart data={monthlyData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+            <BarChart data={monthlyData}
+              margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-              <XAxis
-                dataKey="label"
+              <XAxis dataKey="label"
                 tick={{ fontSize: 13, fill: "var(--color-text-secondary)" }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tickFormatter={formatAmount}
+                axisLine={false} tickLine={false} />
+              <YAxis tickFormatter={formatAmount}
                 tick={{ fontSize: 12, fill: "var(--color-text-secondary)" }}
-                axisLine={false}
-                tickLine={false}
-                width={60}
-              />
+                axisLine={false} tickLine={false} width={60} />
               <Tooltip content={<CustomTooltip />} />
-              <Legend
-                wrapperStyle={{ fontSize: "var(--font-size-sm)", paddingTop: "var(--space-4)" }}
-              />
-              <Bar dataKey="income" name="Income" fill="var(--color-success)"
-                radius={[4, 4, 0, 0]} />
-              <Bar dataKey="expense" name="Expense" fill="var(--color-danger)"
-                radius={[4, 4, 0, 0]} />
+              <Legend wrapperStyle={{
+                fontSize: "var(--font-size-sm)",
+                paddingTop: "var(--space-4)"
+              }} />
+              <Bar dataKey="income" name="Income"
+                fill="var(--color-success)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="expense" name="Expense"
+                fill="var(--color-danger)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       )}
 
-      {/* Top Transactions Chart */}
+      {/* Top Transactions */}
       {activeChart === "top" && (
         <div className="card">
           <h3 style={{ marginBottom: "var(--space-6)" }}>
             Top 5 Transactions by Amount
           </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              data={topTransactions}
-              layout="vertical"
-              margin={{ top: 8, right: 40, left: 8, bottom: 8 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
-              <XAxis
-                type="number"
-                tickFormatter={formatAmount}
-                tick={{ fontSize: 12, fill: "var(--color-text-secondary)" }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                type="category"
-                dataKey="name"
-                tick={{ fontSize: 13, fill: "var(--color-text-secondary)" }}
-                axisLine={false}
-                tickLine={false}
-                width={90}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar
-                dataKey="amount"
-                name="Amount"
-                radius={[0, 4, 4, 0]}
-                fill="var(--color-primary)"
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          {topTransactions.length === 0 ? (
+            <div className="empty-state">
+              <p>No transactions found for this date range.</p>
+            </div>
+          ) : (
+            <>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topTransactions} layout="vertical"
+                  margin={{ top: 8, right: 40, left: 8, bottom: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3"
+                    stroke="var(--color-border)" horizontal={false} />
+                  <XAxis type="number" tickFormatter={formatAmount}
+                    tick={{ fontSize: 12, fill: "var(--color-text-secondary)" }}
+                    axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" width={90}
+                    tick={{ fontSize: 13, fill: "var(--color-text-secondary)" }}
+                    axisLine={false} tickLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="amount" name="Amount"
+                    fill="var(--color-primary)" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
 
-          {/* Legend below */}
-          <div className="transaction-list" style={{ marginTop: "var(--space-6)" }}>
-            {topTransactions.map((t, i) => (
-              <div key={i} className="transaction-item">
-                <div className="transaction-info">
-                  <span className="font-medium">{t.name}</span>
-                  <span className={`badge ${t.type === "INCOME" ? "badge-income" : "badge-expense"}`}>
-                    {t.type}
-                  </span>
-                </div>
-                <span className={`font-semibold ${t.type === "INCOME" ? "text-success" : "text-danger"}`}>
-                  {formatAmount(t.amount)}
-                </span>
+              <div className="transaction-list" style={{ marginTop: "var(--space-6)" }}>
+                {topTransactions.map((t, i) => (
+                  <div key={i} className="transaction-item">
+                    <div className="transaction-info">
+                      <span className="font-medium">{t.name}</span>
+                      <span className={`badge ${t.type === "INCOME"
+                        ? "badge-income" : "badge-expense"}`}>
+                        {t.type}
+                      </span>
+                    </div>
+                    <span className={`font-semibold ${t.type === "INCOME"
+                      ? "text-success" : "text-danger"}`}>
+                      {formatAmount(t.amount)}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </div>
       )}
-
     </div>
   );
 };
