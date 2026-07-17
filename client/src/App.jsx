@@ -10,6 +10,7 @@ import {
   Dashboard,
   Transactions,
   Reports,
+  Categories,
 } from "./components/index";
 import Nav from "./components/Nav";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -44,6 +45,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Transactions />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/categories"
+          element={
+            <ProtectedRoute>
+              <Categories />
             </ProtectedRoute>
           }
         />
