@@ -1,40 +1,49 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addTransactions,
   deleteTransaction,
   clearError,
 } from "../redux/transactionSlice";
-import { useEffect } from "react";
+import { fetchCategories } from "../redux/categorySlice";
 import DateRangeFilter from "./DateRangeFilter";
 import { getCurrentMonthRange, isInRange } from "../utils/dateUtils";
 
 const Transactions = () => {
   const dispatch = useDispatch();
+
   const { allTransactions, status, error } = useSelector(
     (state) => state.transactions
   );
+  const { categories } = useSelector((state) => state.categories);
 
   const [filter, setFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("date-desc");
   const [dateRange, setDateRange] = useState(getCurrentMonthRange());
 
+  // Track selected type in form so category dropdown can filter by it
+  const [selectedType, setSelectedType] = useState("");
+
   useEffect(() => {
     dispatch(clearError());
+    dispatch(fetchCategories());
   }, [dispatch]);
+
+  // Categories filtered by the currently selected type in the form
+  const filteredCategories = useMemo(() => {
+    if (!selectedType) return [];
+    return categories.filter((c) => c.type === selectedType);
+  }, [categories, selectedType]);
 
   const displayedTransactions = useMemo(() => {
     let result = [...allTransactions];
 
-    // Date range filter
     result = result.filter((t) => isInRange(t.date, dateRange.from, dateRange.to));
 
-    // Type filter
     if (filter !== "ALL") {
       result = result.filter((t) => t.type === filter);
     }
 
-    // Sort
     if (sortBy === "date-desc") {
       result.sort((a, b) => new Date(b.date) - new Date(a.date));
     } else if (sortBy === "date-asc") {
@@ -47,6 +56,13 @@ const Transactions = () => {
 
     return result;
   }, [allTransactions, filter, sortBy, dateRange]);
+
+  // Helper to get category name from id
+  const getCategoryName = (categoryId) => {
+    if (!categoryId) return null;
+    const cat = categories.find((c) => c._id === categoryId);
+    return cat ? cat.name : null;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,6 +77,7 @@ const Transactions = () => {
     try {
       await dispatch(addTransactions(formData)).unwrap();
       e.target.reset();
+      setSelectedType("");
     } catch (err) {
       console.error("Failed to add transaction:", err);
     }
@@ -108,10 +125,32 @@ const Transactions = () => {
           </div>
           <div className="form-group">
             <label htmlFor="type">Type</label>
-            <select id="type" name="type" defaultValue="">
+            <select
+              id="type"
+              name="type"
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+            >
               <option disabled value="">Select Type</option>
               <option value="INCOME">Income</option>
               <option value="EXPENSE">Expense</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="category">Category</label>
+            <select
+              id="category"
+              name="category"
+              disabled={!selectedType}
+            >
+              <option value="">
+                {selectedType ? "Select Category (optional)" : "Select type first"}
+              </option>
+              {filteredCategories.map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.name}
+                </option>
+              ))}
             </select>
           </div>
           {error && (
@@ -131,8 +170,6 @@ const Transactions = () => {
 
       {/* Transaction List */}
       <div className="card">
-
-        {/* Date range filter */}
         <DateRangeFilter
           from={dateRange.from}
           to={dateRange.to}
@@ -140,7 +177,6 @@ const Transactions = () => {
           onReset={() => setDateRange(getCurrentMonthRange())}
         />
 
-        {/* List Header */}
         <div className="transaction-list-header">
           <h3>Transactions</h3>
           <div className="transaction-controls">
@@ -185,32 +221,44 @@ const Transactions = () => {
           </div>
         ) : (
           <ul className="transaction-list">
-            {displayedTransactions.map((transaction) => (
-              <li key={transaction._id} className="transaction-item">
-                <div className="transaction-info">
-                  <span className="font-medium">{transaction.name}</span>
-                  <span className={`badge ${transaction.type === "INCOME"
-                    ? "badge-income" : "badge-expense"}`}>
-                    {transaction.type}
-                  </span>
-                </div>
-                <div className="transaction-right">
-                  <span className="text-sm text-muted">
-                    {new Date(transaction.date).toLocaleDateString("en-IN")}
-                  </span>
-                  <span className={`font-semibold ${transaction.type === "INCOME"
-                    ? "text-success" : "text-danger"}`}>
-                    ₹{transaction.amount}
-                  </span>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => handleDelete(transaction._id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
+            {displayedTransactions.map((transaction) => {
+              const categoryName = getCategoryName(transaction.category);
+              return (
+                <li key={transaction._id} className="transaction-item">
+                  <div className="transaction-info">
+                    <span className="font-medium">{transaction.name}</span>
+                    <span className={`badge ${transaction.type === "INCOME"
+                      ? "badge-income" : "badge-expense"}`}>
+                      {transaction.type}
+                    </span>
+                    {categoryName && (
+                      <span className="badge"
+                        style={{
+                          backgroundColor: "var(--color-primary-light)",
+                          color: "var(--color-primary)",
+                        }}>
+                        {categoryName}
+                      </span>
+                    )}
+                  </div>
+                  <div className="transaction-right">
+                    <span className="text-sm text-muted">
+                      {new Date(transaction.date).toLocaleDateString("en-IN")}
+                    </span>
+                    <span className={`font-semibold ${transaction.type === "INCOME"
+                      ? "text-success" : "text-danger"}`}>
+                      ₹{transaction.amount}
+                    </span>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => handleDelete(transaction._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

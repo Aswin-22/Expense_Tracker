@@ -56,6 +56,11 @@ function Nav() {
                 Transactions
               </NavLink>
             </li>
+            <li>
+              <NavLink to="/categories" className="nav-items">
+                Categories
+              </NavLink>
+            </li>
           </ul>
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium">{user?.name || "User"}</span>
