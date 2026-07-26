@@ -76,7 +76,12 @@ export const getUserProfile = async (req, res, next) => {
 
 export async function logOut(req, res, next) {
   try {
-    res.clearCookie("jwt");
+    const isProduction = process.env.NODE_ENV === "production";
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+    });
     res.json({ message: "Logged out successfully" });
   } catch (error) {
     next(error);
