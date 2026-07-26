@@ -1,15 +1,16 @@
-import React from "react";
 import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
+
 function Home() {
-  const { isAuthenticated } = useSelector((state) => state.auth);
-  return (
-    <div className="container">
-      <h2>
-        This is a home page, The user is{" "}
-        {isAuthenticated ? "Authenticated" : "Not Authenticated"}
-      </h2>
-    </div>
-  );
+  const { isAuthenticated, authChecked } = useSelector((state) => state.auth);
+
+  if (!authChecked) return null;
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Navigate to="/user/login" replace />;
 }
 
 export default Home;

@@ -22,7 +22,7 @@ function Login() {
     try {
       await dispatch(login({ email, password })).unwrap();
       await dispatch(fetchAndSetTransactions()).unwrap();
-      navigate("/");
+      navigate("/dashboard");;
     } catch (err) {
       console.error("Login failed:", err);
     }
