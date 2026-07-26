@@ -2,7 +2,7 @@ import Transaction from "../models/transaction.js";
 
 // CREATE TRANSACTION
 export async function handleNewTransaction(req, res, next) {
-  const { amount, date, type, name } = req.body;
+  const { amount, date, type, name, category } = req.body;
 
   try {
     const newTransaction = await Transaction.create({
@@ -11,6 +11,7 @@ export async function handleNewTransaction(req, res, next) {
       date: date || new Date(),
       type,
       name,
+      category: category || null,
     });
 
     res.status(201).json(newTransaction);
